@@ -1,10 +1,12 @@
 import cv2
 import bitMask as bm
-import makeGray as gr
 import numpy as np
 
 def findStaff(name):
     img = cv2.imread(name)
+
+    #img=bm.removeNoise(img)
+
     line = []
     width = len(img[0])
     height = len(img)
