@@ -2,24 +2,9 @@ import cv2
 import bitMask as bm
 import numpy as np
 
-def threshold(image):
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    ret, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
-    return image
-
 def findStaff(name):
     img = cv2.imread(name)
-
-    #img=bm.removeNoise(img)
-
-    img = threshold(cv2.imread(name))
-    mask = np.zeros(img.shape, np.uint8)
-    cnt, labels, stats, centroids = cv2.connectedComponentsWithStats(img)
-    for i in range(1, cnt):
-        x, y, w, h, area = stats[i]
-        if w > img.shape[1] * 0.5:
-            cv2.rectangle(mask, (x,y,w,h), (255, 0, 0), -1)
-    img = cv2.bitwise_and(img, mask)
+    img=bm.removeNoise(img)
 
     line = []
     width = len(img[0])
