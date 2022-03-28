@@ -1,5 +1,6 @@
 import cv2
-from bitMask import removeNoise
+from modules import removeNoise
+from pringImg import imgShow
 import numpy as np
 
 def findStaff(name):
@@ -22,9 +23,7 @@ def findStaff(name):
             cv2.line(img, [start-20, i], [start-10, i], (255, 255, 255), 1) # 위치 보여주기 위한 테스트 코드
             line.append(i)
     print(line)
-    cv2.imshow("test",img)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+    imgShow("test",img)
 
 if __name__ == '__main__':
 
