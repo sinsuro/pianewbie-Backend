@@ -23,7 +23,13 @@ def findStaff(name):
             cv2.line(img, [start-20, i], [start-10, i], (255, 255, 255), 1) # 위치 보여주기 위한 테스트 코드
             line.append(i)
     print(line)
-    imgShow("test",img)
+    center = (line[1] - line[0]) // 2
+    # print(center)
+    for x in line:
+        for j in range(start, end):
+            img[x+center][j]
+
+    # imgShow("test",img)
 
 if __name__ == '__main__':
 
