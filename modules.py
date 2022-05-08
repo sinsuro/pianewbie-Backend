@@ -140,9 +140,47 @@ def recognition(image, staves, objects):
             time_signature = ts
             key += temp_key
         else:  # 조표가 완전히 탐색되었음
-            pass
+            rs.recognize_note(image, staff, stats, stems, direction)
 
         cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
         fc.put_text(image, i, (x, y - fc.weighted(30)))
 
     return image, key, beats, pitches
+
+def recognize_note_head(image, stem, direction):
+    (x, y, w, h) = stem
+    if direction:  # 정 방향 음표
+        area_top = y + h - fc.weighted(7)  # 음표 머리를 탐색할 위치 (상단)
+        area_bot = y + h + fc.weighted(7)  # 음표 머리를 탐색할 위치 (하단)
+        area_left = x - fc.weighted(14)  # 음표 머리를 탐색할 위치 (좌측)
+        area_right = x  # 음표 머리를 탐색할 위치 (우측)
+    else:  # 역 방향 음표
+        area_top = y - fc.weighted(7)  # 음표 머리를 탐색할 위치 (상단)
+        area_bot = y + fc.weighted(7)  # 음표 머리를 탐색할 위치 (하단)
+        area_left = x + w  # 음표 머리를 탐색할 위치 (좌측)
+        area_right = x + w + fc.weighted(14)  # 음표 머리를 탐색할 위치 (우측)
+
+    cnt = 0  # cnt = 끊기지 않고 이어져 있는 선의 개수를 셈
+    cnt_max = 0  # cnt_max = cnt 중 가장 큰 값
+    head_center = 0
+    pixel_cnt = fc.count_rect_pixels(image, (area_left, area_top, area_right - area_left, area_bot - area_top))
+
+
+    # get_line, weighted 확인 필 *
+    for row in range(area_top, area_bot):
+        col, pixels = fc.get_line(image, fc.HORIZONTAL, row, area_left, area_right, 5)
+        pixels += 1
+        if pixels >= fc.weighted(5):
+            cnt += 1
+            cnt_max = max(cnt_max, pixels)
+            head_center += row
+
+    # 수치 조절 필요 *
+    head_exist = (cnt >= 3 and pixel_cnt >= 50)
+    head_fill = (cnt >= 6 and cnt_max >= 9 and pixel_cnt >= 60)
+    print(cnt, pixel_cnt, cnt_max)
+    # 조건 추가
+    if cnt != 0:
+        head_center /= cnt
+
+    return head_exist, head_fill, head_center

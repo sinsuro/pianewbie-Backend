@@ -8,6 +8,7 @@ import func as fs
 
 if __name__ == '__main__':
 
+    # image_0 = cv2.imread("test.jpg")
     image_0 = cv2.imread("fireplay.jpg")
 
     # 1. 보표 영역 추출 및 그 외 노이즈 제거
