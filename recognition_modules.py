@@ -3,6 +3,7 @@ import modules
 
 def recognize_key(image, staves, stats):
     (x, y, w, h, area) = stats
+
     ts_conditions = (
         staves[0] + fs.weighted(5) >= y >= staves[0] - fs.weighted(5) and  # 상단 위치 조건
         staves[4] + fs.weighted(5) >= y + h >= staves[4] - fs.weighted(5) and  # 하단 위치 조건
@@ -10,10 +11,11 @@ def recognize_key(image, staves, stats):
         fs.weighted(18) >= w >= fs.weighted(10) and  # 넓이 조건
         fs.weighted(45) >= h >= fs.weighted(35)  # 높이 조건
     )
+
     if ts_conditions:
         return True, 0
     else:  # 조표가 있을 경우 (다장조를 제외한 모든 조)
-        stems = fs.stem_detection(image, stats, 10)
+        stems = fs.stem_detection(image, stats, 20)
 
         # 변경 했음
         if not stems:
@@ -43,11 +45,13 @@ def recognize_note(image, staff, stats, stems, direction):
         for i in range(len(stems)):
             stem = stems[i]
             head_exist, head_fill, head_center = modules.recognize_note_head(image, stem, direction)
-            if head_center:
-                print(y, x, head_exist, head_fill)
+            # head_center->exist 변경
+            if head_exist:
+                #print(y, x, head_exist, head_fill)
                 fs.put_text(image, head_exist, (x - fs.weighted(10), y + h + fs.weighted(20)))
                 fs.put_text(image, head_fill, (x - fs.weighted(10), y + h + fs.weighted(50)))
-
+            # fs.put_text(image, head_exist, (x - fs.weighted(10), y + h + fs.weighted(20)))
+            # fs.put_text(image, head_fill, (x - fs.weighted(10), y + h + fs.weighted(50)))
     pass
 
 
@@ -60,4 +64,6 @@ def recognize_note(image, staff, stats, stems, direction):
     #     fs.put_text(image, h, (x, y + h + fs.weighted(60)))
     #     fs.put_text(image, fs.count_rect_pixels(image, (x, y, w, h)), (x, y + h + fs.weighted(90)))
 
-    pass
+    #pass
+
+

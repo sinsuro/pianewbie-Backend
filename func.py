@@ -44,6 +44,8 @@ def get_line(image, axis, axis_value, start, end, length):
                 pixels = 0  # 찾는 길이에 도달하기 전에 선이 끊김 (남은 범위 다시 탐색)
     return y if axis else x, pixels
 
+
+#여기일지도?
 def stem_detection(image, stats, length):
     (x, y, w, h, area) = stats
     stems = []  # 기둥 정보 (x, y, w, h)
@@ -55,6 +57,7 @@ def stem_detection(image, stats, length):
                 stems.append([x, y, w, h])
             else:
                 stems[-1][2] += 1
+    #print(stems)
     return stems
 
 def count_rect_pixels(image, rect):

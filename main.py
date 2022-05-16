@@ -17,11 +17,12 @@ if __name__ == '__main__':
     # 2. 오선 제거
     image_2, staves = modules.removeStaves(image_1)
 
+    standard=10
     # 3. 악보 이미지 정규화
-    image_3, staves = modules.normalization(image_2, staves, 10)
+    image_3, staves = modules.normalization(image_2, staves, standard)
 
     # 4. 객체 검출 과정
-    image_4, objects = modules.object_detection(image_3, staves)
+    image_4, objects = modules.object_detection(image_3, staves,standard)
 
     # 5. 객체 분석 과정
     image_5, objects = modules.object_analysis(image_4, objects)
@@ -30,7 +31,7 @@ if __name__ == '__main__':
     image_6, key, beats, pitches = modules.recognition(image_5, staves, objects)
 
     # 이미지 띄우기
-    cv2.imshow('image', image_4)
+    cv2.imshow('image', image_6)
     k = cv2.waitKey(0)
     if k == 27:
         cv2.destroyAllWindows()
