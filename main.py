@@ -5,11 +5,12 @@ import modules
 from pringImg import imgShow
 import cv2
 import func as fs
+import template_matching as tm
 
 if __name__ == '__main__':
 
     # image_0 = cv2.imread("test.jpg")
-    image_0 = cv2.imread("fireplay.jpg")
+    image_0 = cv2.imread("test.jpg")
 
     # 1. 보표 영역 추출 및 그 외 노이즈 제거
     image_1 = modules.removeNoise(image_0)
@@ -17,21 +18,27 @@ if __name__ == '__main__':
     # 2. 오선 제거
     image_2, staves = modules.removeStaves(image_1)
 
-    standard=10
+    standard=15
     # 3. 악보 이미지 정규화
     image_3, staves = modules.normalization(image_2, staves, standard)
 
     # 4. 객체 검출 과정
     image_4, objects = modules.object_detection(image_3, staves,standard)
 
-    # 5. 객체 분석 과정
-    image_5, objects = modules.object_analysis(image_4, objects)
+    #4-1. 색반전
+    image_4=255-image_4
+    # 정규화 악보 이미지 저장
+    cv2.imwrite(filename="test_nomal.jpg",img=image_4)
 
-    # 6. 인식 과정
-    image_6, key, beats, pitches = modules.recognition(image_5, staves, objects)
 
+    # # 5. 객체 분석 과정
+    # image_5, objects = modules.object_analysis(image_4, objects)
+    #
+    # # 6. 인식 과정
+    # image_6, key, beats, pitches = modules.recognition(image_5, staves, objects)
+    #
     # 이미지 띄우기
-    cv2.imshow('image', image_6)
+    cv2.imshow('image', image_4)
     k = cv2.waitKey(0)
     if k == 27:
         cv2.destroyAllWindows()
