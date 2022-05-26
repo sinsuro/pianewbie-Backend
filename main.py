@@ -5,6 +5,7 @@ import modules
 from pringImg import imgShow
 import cv2
 import func as fs
+import numpy as np
 import template_matching as tm
 
 if __name__ == '__main__':
@@ -18,7 +19,7 @@ if __name__ == '__main__':
     # 2. 오선 제거
     image_2, staves = modules.removeStaves(image_1)
 
-    standard=15
+    standard=20
     # 3. 악보 이미지 정규화
     image_3, staves = modules.normalization(image_2, staves, standard)
 
@@ -27,8 +28,13 @@ if __name__ == '__main__':
 
     #4-1. 색반전
     image_4=255-image_4
+
+    #4-2. 노이즈 제거 중
+    kernel = np.ones((fs.weighted(2.5), fs.weighted(2.5)), np.uint8)
+    image_4_noise = cv2.morphologyEx(image_4, cv2.MORPH_OPEN, kernel)
+
     # 정규화 악보 이미지 저장
-    cv2.imwrite(filename="test_nomal.jpg",img=image_4)
+    cv2.imwrite(filename="test_nomal.jpg",img=image_4_noise)
 
 
     # # 5. 객체 분석 과정
@@ -39,6 +45,7 @@ if __name__ == '__main__':
     #
     # 이미지 띄우기
     cv2.imshow('image', image_4)
+    cv2.imshow('image_noise', image_4_noise)
     k = cv2.waitKey(0)
     if k == 27:
         cv2.destroyAllWindows()
