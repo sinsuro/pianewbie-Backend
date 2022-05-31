@@ -6,12 +6,17 @@ from pringImg import imgShow
 import cv2
 import func as fs
 import numpy as np
-import template_matching as tm
+import os
 
 if __name__ == '__main__':
 
-    # image_0 = cv2.imread("test.jpg")
-    image_0 = cv2.imread("test.jpg")
+    # 0-1. 파일 이름 가져오기
+    num=0
+    file_list=os.listdir("data")
+    load_file="data/"+file_list[num]
+
+    # 0-2. 이미지 가져오기
+    image_0 = fs.loadImageFromPath(load_file)
 
     # 1. 보표 영역 추출 및 그 외 노이즈 제거
     image_1 = modules.removeNoise(image_0)
@@ -33,8 +38,11 @@ if __name__ == '__main__':
     kernel = np.ones((fs.weighted(2.5), fs.weighted(2.5)), np.uint8)
     image_4_noise = cv2.morphologyEx(image_4, cv2.MORPH_OPEN, kernel)
 
+    save_file="data_refine/"+fs.saveJpg(file_list[num])
     # 정규화 악보 이미지 저장
-    cv2.imwrite(filename="test_nomal.jpg",img=image_4_noise)
+    cv2.imwrite(filename=save_file,img=image_4_noise)
+
+
 
 
     # # 5. 객체 분석 과정
@@ -43,9 +51,9 @@ if __name__ == '__main__':
     # # 6. 인식 과정
     # image_6, key, beats, pitches = modules.recognition(image_5, staves, objects)
     #
+
     # 이미지 띄우기
-    cv2.imshow('image', image_4)
-    cv2.imshow('image_noise', image_4_noise)
+    cv2.imshow('image', image_4_noise)
     k = cv2.waitKey(0)
     if k == 27:
         cv2.destroyAllWindows()
@@ -96,8 +104,4 @@ if __name__ == '__main__':
     #
     #
     # image_4, objects = modules.object_detection(image_3, sta)
-    #
-    # imgShow("?",image_4)
-    # k = cv2.waitKey(0)
-    # if k == 27:
-    #     cv2.destroyAllWindows()
+

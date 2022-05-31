@@ -68,3 +68,23 @@ def count_rect_pixels(image, rect):
             if image[row][col] == 255:
                 pixels += 1
     return pixels
+
+def loadImageFromPath(imgPath):
+    try:
+        # gif 처리
+        if str(imgPath).lower().endswith('.gif'):
+            gif = cv2.VideoCapture(imgPath)
+            ret, frame = gif.read()  # ret=True if it finds a frame else False.
+            if ret:
+                return frame
+        else:
+            return cv2.imread(imgPath)
+    except Exception as e:
+        print(e)
+        return None
+
+def saveJpg(imgPath):
+    saveImgPath,ext=imgPath.split(".")
+    saveImgPath+=".jpg"
+
+    return saveImgPath
