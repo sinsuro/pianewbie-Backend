@@ -11,36 +11,39 @@ import os
 if __name__ == '__main__':
 
     # 0-1. 파일 이름 가져오기
-    num=0
-    file_list=os.listdir("data")
-    load_file="data/"+file_list[num]
+    # num=0
+    # file_list=os.listdir("data")
+    for file_list in os.listdir("data"):
+        # load_file="data/"+file_list[num]
 
-    # 0-2. 이미지 가져오기
-    image_0 = fs.loadImageFromPath(load_file)
+        load_file="data/"+file_list
+        # 0-2. 이미지 가져오기
+        image_0 = fs.loadImageFromPath(load_file)
 
-    # 1. 보표 영역 추출 및 그 외 노이즈 제거
-    image_1 = modules.removeNoise(image_0)
+        # 1. 보표 영역 추출 및 그 외 노이즈 제거
+        image_1 = modules.removeNoise(image_0)
 
-    # 2. 오선 제거
-    image_2, staves = modules.removeStaves(image_1)
+        # 2. 오선 제거
+        image_2, staves = modules.removeStaves(image_1)
 
-    standard=20
-    # 3. 악보 이미지 정규화
-    image_3, staves = modules.normalization(image_2, staves, standard)
+        standard=20
+        # 3. 악보 이미지 정규화
+        image_3, staves = modules.normalization(image_2, staves, standard)
 
-    # 4. 객체 검출 과정
-    image_4, objects = modules.object_detection(image_3, staves,standard)
+        # 4. 객체 검출 과정
+        image_4, objects = modules.object_detection(image_3, staves,standard)
 
-    #4-1. 색반전
-    image_4=255-image_4
+        #4-1. 색반전
+        image_4=255-image_4
 
-    #4-2. 노이즈 제거 중
-    kernel = np.ones((fs.weighted(2.5), fs.weighted(2.5)), np.uint8)
-    image_4_noise = cv2.morphologyEx(image_4, cv2.MORPH_OPEN, kernel)
+        #4-2. 노이즈 제거 중
+        kernel = np.ones((fs.weighted(2.5), fs.weighted(2.5)), np.uint8)
+        image_4_noise = cv2.morphologyEx(image_4, cv2.MORPH_OPEN, kernel)
 
-    save_file="data_refine/"+fs.saveJpg(file_list[num])
-    # 정규화 악보 이미지 저장
-    cv2.imwrite(filename=save_file,img=image_4_noise)
+        # save_file="data_refine/"+fs.saveJpg(file_list[num])
+        save_file="data_refine/"+fs.saveJpg(file_list)
+        # 정규화 악보 이미지 저장
+        cv2.imwrite(filename=save_file,img=image_4_noise)
 
 
 
@@ -53,10 +56,10 @@ if __name__ == '__main__':
     #
 
     # 이미지 띄우기
-    cv2.imshow('image', image_4_noise)
-    k = cv2.waitKey(0)
-    if k == 27:
-        cv2.destroyAllWindows()
+    # cv2.imshow('image', image_4_noise)
+    # k = cv2.waitKey(0)
+    # if k == 27:
+    #     cv2.destroyAllWindows()
 
 
 
