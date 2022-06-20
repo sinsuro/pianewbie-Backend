@@ -81,10 +81,13 @@ def normalization(image, staves, standard):
 
     height, width = image.shape  # 이미지의 높이와 넓이
     weight = standard / avg_distance  # 기준으로 정한 오선 간격을 이용해 가중치를 구함
+    # weight = 3 * standard / avg_distance  # 기준으로 정한 오선 간격을 이용해 가중치를 구함
     new_width = int(width * weight)  # 이미지의 넓이에 가중치를 곱해줌
     new_height = int(height * weight)  # 이미지의 높이에 가중치를 곱해줌
-
-    image = cv2.resize(image, (new_width, new_height))  # 이미지 리사이징
+    print(weight)
+    print(height,new_height)
+    print(width,new_width)
+    image = cv2.resize(image, (new_width, new_height), cv2.INTER_CUBIC)  # 이미지 리사이징
     ret, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)  # 이미지 이진화
     staves = [x * weight for x in staves]  # 오선 좌표에도 가중치를 곱해줌
 

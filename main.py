@@ -14,9 +14,11 @@ if __name__ == '__main__':
     # num=0
     # file_list=os.listdir("data")
     for file_list in os.listdir("data"):
-        # load_file="data/"+file_list[num]
+        num = 4
+        file_list = os.listdir("data")
+        load_file = "data/" + file_list[num]
 
-        load_file="data/"+file_list
+        # load_file = "data/" + file_list
         # 0-2. 이미지 가져오기
         image_0 = fs.loadImageFromPath(load_file)
 
@@ -26,7 +28,7 @@ if __name__ == '__main__':
         # 2. 오선 제거
         image_2, staves = modules.removeStaves(image_1)
 
-        standard=20
+        standard = 20
         # 3. 악보 이미지 정규화
         image_3, staves = modules.normalization(image_2, staves, standard)
 
@@ -34,17 +36,23 @@ if __name__ == '__main__':
         image_4, objects = modules.object_detection(image_3, staves,standard)
 
         #4-1. 색반전
-        image_4=255-image_4
+        image_4 = 255 - image_4
 
         #4-2. 노이즈 제거 중
         kernel = np.ones((fs.weighted(2.5), fs.weighted(2.5)), np.uint8)
         image_4_noise = cv2.morphologyEx(image_4, cv2.MORPH_OPEN, kernel)
-
-        # save_file="data_refine/"+fs.saveJpg(file_list[num])
-        save_file="data_refine/"+fs.saveJpg(file_list)
+        # save_file = "data_refine/test1"+fs.saveJpg(file_list[num])
+        # save_file = "data_refine/"+fs.saveJpg(file_list)
         # 정규화 악보 이미지 저장
-        cv2.imwrite(filename=save_file,img=image_4_noise)
+        # cv2.imwrite(filename=save_file,img=image_4_noise)
+        # cv2.imwrite(filename=save_file,img=image_4_noise[1400:1800, 2200:3000])
 
+        # cv2.imshow('image', image_4_noise)
+        # cv2.imshow('image', image_4_noise[1400:1800, 2200:3000])
+        # k = cv2.waitKey(0)
+        # if k == 27:
+        #     cv2.destroyAllWindows()
+        # break
 
 
 
