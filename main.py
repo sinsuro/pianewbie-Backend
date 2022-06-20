@@ -1,5 +1,6 @@
 import time
 
+import pringImg
 from scanFile import findStaff
 import modules
 from pringImg import imgShow
@@ -13,12 +14,14 @@ if __name__ == '__main__':
     # 0-1. 파일 이름 가져오기
     # num=0
     # file_list=os.listdir("data")
+    fname = 0
     for file_list in os.listdir("data"):
-        num = 4
-        file_list = os.listdir("data")
-        load_file = "data/" + file_list[num]
+        fname += 1
+        # num = 4
+        # file_list = os.listdir("data")
+        # load_file = "data/" + file_list[num]
+        load_file = "data/" + file_list
 
-        # load_file = "data/" + file_list
         # 0-2. 이미지 가져오기
         image_0 = fs.loadImageFromPath(load_file)
 
@@ -41,6 +44,14 @@ if __name__ == '__main__':
         #4-2. 노이즈 제거 중
         kernel = np.ones((fs.weighted(2.5), fs.weighted(2.5)), np.uint8)
         image_4_noise = cv2.morphologyEx(image_4, cv2.MORPH_OPEN, kernel)
+
+        # print(len(staves))
+        for i in range(len(staves)//5):
+            # print(file_list)
+            # pringImg.imgShow(str(i+1), image_4_noise[int(staves[i*5]-300):int(staves[i*5+4]+300),100:-100])
+            save_file = "data_seg_refine/" + str(fname) + "_" + str(i+1) + ".jpg"
+            print(save_file, "완료")
+            cv2.imwrite(filename=save_file, img=image_4_noise[int(staves[i*5]-300):int(staves[i*5+4]+300),100:-100])
         # save_file = "data_refine/test1"+fs.saveJpg(file_list[num])
         # save_file = "data_refine/"+fs.saveJpg(file_list)
         # 정규화 악보 이미지 저장
@@ -52,7 +63,7 @@ if __name__ == '__main__':
         # k = cv2.waitKey(0)
         # if k == 27:
         #     cv2.destroyAllWindows()
-        break
+        # break
 
 
 
