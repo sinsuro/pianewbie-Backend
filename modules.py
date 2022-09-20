@@ -1,10 +1,6 @@
-# 필요없는 정보 제거
 import cv2
 import numpy as np
 import func as fc
-import pringImg
-import recognition_modules as rs
-
 
 def removeStaves(image):
     height, width = image.shape
@@ -81,131 +77,11 @@ def normalization(image, staves, standard):
     avg_distance /= len(staves) - lines  # 오선 간의 평균 간격
 
     height, width = image.shape  # 이미지의 높이와 넓이
-    # weight = standard / avg_distance  # 기준으로 정한 오선 간격을 이용해 가중치를 구함
     weight = 3 * standard / avg_distance  # 기준으로 정한 오선 간격을 이용해 가중치를 구함
     new_width = int(width * weight)  # 이미지의 넓이에 가중치를 곱해줌
     new_height = int(height * weight)  # 이미지의 높이에 가중치를 곱해줌
-    # print(weight)
-    # print(height,new_height)
-    # print(width,new_width)
     image = cv2.resize(image, (new_width, new_height), cv2.INTER_LANCZOS4)  # 이미지 리사이징
     ret, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)  # 이미지 이진화
     staves = [x * weight for x in staves]  # 오선 좌표에도 가중치를 곱해줌
 
-    # print(staves[0])
-    # 한줄 저장 하기 위한 테스트
-    # print(1)
-    # image = 255 - image
-
-    # pringImg.imgShow('image', image[int(staves[5]-100*weight):int(staves[9]+100*weight)])
-
     return image, staves
-
-
-def object_detection(image, staves,standard):
-    lines = int(len(staves) / 5)  # 보표의 개수
-    objects = []  # 구성요소 정보가 저장될 리스트
-
-    closing_image = fc.closing(image)
-    cnt, labels, stats, centroids = cv2.connectedComponentsWithStats(closing_image)  # 모든 객체 검출하기
-    for i in range(1, cnt):
-        (x, y, w, h, area) = stats[i]
-        if w >= fc.weighted(standard/2) and h >= fc.weighted(standard/2):  # 악보의 구성요소가 되기 위한 넓이, 높이 조건
-            center = fc.get_center(y, h)
-            for line in range(lines):
-                area_top = staves[line * 5] - fc.weighted(standard*2)  # 위치 조건 (상단)
-                area_bot = staves[(line + 1) * 5 - 1] + fc.weighted(standard*2)  # 위치 조건 (하단)
-                if area_top <= center <= area_bot:
-                    objects.append([line, (x, y, w, h, area)])  # 객체 리스트에 보표 번호와 객체의 정보(위치, 크기)를 추가
-
-    objects.sort()  # 보표 번호 → x 좌표 순으로 오름차순 정렬
-
-    return image, objects
-
-
-def object_analysis(image, objects):
-    for obj in objects:
-        # x, y, w, h, area
-        stats = obj[1]
-        stems = fc.stem_detection(image, stats, 30)  # 객체 내의 모든 직선들을 검출함
-
-        direction = None
-        if len(stems) > 0:  # 직선이 1개 이상 존재함
-            if stems[0][0] - stats[0] >= fc.weighted(10):  # 직선이 나중에 발견되면
-                direction = True  # 정 방향 음표
-            else:  # 직선이 일찍 발견되면
-                direction = False  # 역 방향 음표
-        obj.append(stems)  # 객체 리스트에 직선 리스트를 추가
-        obj.append(direction)  # 객체 리스트에 음표 방향을 추가
-
-    return image, objects
-
-
-def recognition(image, staves, objects):
-    key = 0
-    time_signature = False
-    beats = []  # 박자 리스트
-    pitches = []  # 음이름 리스트
-
-    # 수정
-    for i in range(1, len(objects)):
-        obj = objects[i]
-        line = obj[0]
-        stats = obj[1]
-        stems = obj[2]
-        direction = obj[3]
-        (x, y, w, h, area) = stats
-        staff = staves[line * 5: (line + 1) * 5]
-        if not time_signature:  # 조표가 완전히 탐색되지 않음 (아직 박자표를 찾지 못함)
-            ts, temp_key = rs.recognize_key(image, staff, stats)
-            time_signature = ts
-            key += temp_key
-            # if time_signature:
-            #     fc.put_text(image, key, (x, y + h + fc.weighted(20)))
-        else:  # 조표가 완전히 탐색되었음
-            rs.recognize_note(image, staff, stats, stems, direction)
-
-        cv2.rectangle(image, (x, y, w, h), (255, 0, 0), 1)
-        fc.put_text(image, i, (x, y - fc.weighted(30)))
-
-    return image, key, beats, pitches
-
-
-# 확인 필요
-def recognize_note_head(image, stem, direction):
-    (x, y, w, h) = stem
-    if direction:  # 정 방향 음표
-        area_top = y + h - fc.weighted(7)  # 음표 머리를 탐색할 위치 (상단)
-        area_bot = y + h + fc.weighted(7)  # 음표 머리를 탐색할 위치 (하단)
-        area_left = x - fc.weighted(14)  # 음표 머리를 탐색할 위치 (좌측)
-        area_right = x  # 음표 머리를 탐색할 위치 (우측)
-    else:  # 역 방향 음표
-        area_top = y - fc.weighted(7)  # 음표 머리를 탐색할 위치 (상단)
-        area_bot = y + fc.weighted(7)  # 음표 머리를 탐색할 위치 (하단)
-        area_left = x + w  # 음표 머리를 탐색할 위치 (좌측)
-        area_right = x + w + fc.weighted(14)  # 음표 머리를 탐색할 위치 (우측)
-
-    cnt = 0  # cnt = 끊기지 않고 이어져 있는 선의 개수를 셈
-    cnt_max = 0  # cnt_max = cnt 중 가장 큰 값
-    head_center = 0
-    pixel_cnt = fc.count_rect_pixels(image, (area_left, area_top, area_right - area_left, area_bot - area_top))
-
-    # get_line, weighted 확인 필 *
-    for row in range(area_top, area_bot):
-        col, pixels = fc.get_line(image, fc.HORIZONTAL, row, area_left, area_right, 5)
-        pixels += 1
-        if pixels >= fc.weighted(5):
-            cnt += 1
-            cnt_max = max(cnt_max, pixels)
-            head_center += row
-
-    # 수치 조절 필요 *
-    head_exist = (cnt >= 3 and pixel_cnt >= 50)
-    head_fill = (cnt >= 6 and cnt_max >= 9 and pixel_cnt >= 60)
-    #print(cnt, pixel_cnt, cnt_max)
-
-    # 조건 추가
-    if cnt != 0:
-        head_center /= cnt
-
-    return head_exist, head_fill, head_center
